@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>checkbox</title>
+  <script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+  <style type="text/css">
+    *{
+      box-sizing:border-box;
+    }
+    ul{
+      width:500px;
+      height:auto;
+      margin:0;
+      padding:20px;
+      font-size: 0;
+      position:relative;
+    }
+    li{
+      width:20px;
+      height:20px;
+      margin:10px;
+      padding:0;
+      display:inline-block;
+      vertical-align: top;
+      font-size: 13px;
+      border:2px solid black;
+    }
+    #moveSelected{
+      position:absolute;
+      background-color: blue;
+      opacity:0.3;
+      border:1px dashed #d9d9d9;
+      top:0;
+      left:0;
+    }
+    .selected{
+      background-color: dodgerblue;
+    }
+  </style>
+</head>
+<body>
+<ul class="list">
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <li> </li>
+  <div id="moveSelected"></div>
+</ul>
+//2022.5.18  12:53   祝轩
+</body>
+</html>
+<script type="text/javascript">
+  $(document).ready(function(){
+    let moveSelected=$('#moveSelected')[0];
+    let flag=false;
+    let oldLeft=0;
+    let oldTop=0;
+    let selectedList=[];
+
+    $(".list").mousedown(function(event) {
+      flag=true;
+      moveSelected.style.top=event.pageY+'px';
+      moveSelected.style.left=event.pageX+'px';
+      oldLeft=event.pageX;
+      oldTop=event.pageY;
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    // 鼠标移动宽、高
+    $(".list").mousemove(function(event) {
+      if(!flag) return;
+      if(event.pageX<oldLeft){  //左拖
+        moveSelected.style.left=event.pageX+'px';
+        moveSelected.style.width=(oldLeft-event.pageX)+'px';
+      }else{
+        moveSelected.style.width=(event.pageX-oldLeft)+'px';
+      }
+      if(event.pageY<oldTop){  //向上
+        moveSelected.style.top=event.pageY+'px';
+        moveSelected.style.height=(oldTop-event.pageY)+'px';
+      }else{
+        moveSelected.style.height=(event.pageY-oldTop)+'px';
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    $(".list").mouseup(function(event) {
+      moveSelected.style.bottom=Number(moveSelected.style.top.split('px')[0])+Number(moveSelected.style.height.split('px')[0]) + 'px';
+      moveSelected.style.right=Number(moveSelected.style.left.split('px')[0])+Number(moveSelected.style.width.split('px')[0])+'px';
+      findSelected();
+      flag=false;
+      clearDragData();
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    $(".list").mouseleave(function(event) {
+      flag=false;
+      moveSelected.style.width=0;
+      moveSelected.style.height=0;
+      moveSelected.style.top=0;
+      moveSelected.style.left=0;
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    function findSelected(){
+      let blockList=$('.list').find('li');
+      for(let i=0;i<blockList.length;i++){
+        let left=$(blockList[i]).offset().left;
+        let right=$(blockList[i]).width()+left;
+        let top=$(blockList[i]).offset().top;
+        let bottom=$(blockList[i]).height()+top;
+        let leftFlag=moveSelected.style.left.split('px')[0]<=left && left<=moveSelected.style.right.split('px')[0];
+        let rightFlag=moveSelected.style.left.split('px')[0]<=right && right<=moveSelected.style.right.split('px')[0];
+        let topFlag=moveSelected.style.top.split('px')[0]<=top && top<=moveSelected.style.bottom.split('px')[0];
+        let bottomFlag=moveSelected.style.top.split('px')[0]<=bottom && bottom<=moveSelected.style.bottom.split('px')[0];
+        if((leftFlag || rightFlag) && (topFlag || bottomFlag)){
+          selectedList.push(blockList[i]);
+          $(blockList[i]).addClass('selected');
+        }
+      }
+      console.log(selectedList);
+    }
+    function clearDragData(){
+      moveSelected.style.width=0;
+      moveSelected.style.height=0;
+      moveSelected.style.top=0;
+      moveSelected.style.left=0;
+      moveSelected.style.bottom=0;
+      moveSelected.style.right=0;
+    }
+  });
+</script>
